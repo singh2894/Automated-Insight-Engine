@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from automl import cleaning as c
+from AIE import cleaning as c
 
 
 def test_numeric_imputer_median():

@@ -1,4 +1,5 @@
 import io
+import re
 from typing import Optional
 
 import pandas as pd
@@ -7,9 +8,10 @@ import streamlit as st
 from sklearn.base import clone
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
+from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, plot_tree
 
-from automl import cleaning, diagnostics, understanding, features, selection, models, runner, evaluation
+from AIE import cleaning, diagnostics, understanding, features, selection, models, evaluation
 
 
 st.set_page_config(page_title="Automated Insight Engine", layout="wide")
@@ -38,6 +40,19 @@ class AppModelSpec:
     def __init__(self, name, estimator):
         self.name = name
         self.estimator = estimator
+
+def prepare_features(df, target_col):
+    y = df[target_col]
+    X = df.drop(columns=[target_col])
+    X = pd.get_dummies(X, drop_first=True)
+    # Sanitize feature names to prevent LightGBM errors with special JSON characters
+    X.columns = [re.sub(r'[^\w]', '_', str(col)) for col in X.columns]
+    return X, y
+
+def encode_classification_target(y):
+    le = LabelEncoder()
+    y_enc = le.fit_transform(y)
+    return pd.Series(y_enc, index=y.index), le.classes_.tolist()
 
 def get_available_models(task, n_rows, n_features, n_categorical):
     candidates = list(models.select_models(task=task, n_rows=n_rows, n_features=n_features, n_categorical=n_categorical))
@@ -294,10 +309,10 @@ def render_training_tab():
             
         df_used = df_train[feature_cols + [target_col]]
         # Prepare data
-        X, y = runner.prepare_features(df_used, target_col)
+        X, y = prepare_features(df_used, target_col)
         label_classes = []
         if effective_task == "classification":
-            y, label_classes = runner.encode_classification_target(y)
+            y, label_classes = encode_classification_target(y)
 
         # Safely stratify the split
         stratify_param = None
@@ -587,12 +602,12 @@ def render_leaderboard_tab():
 
                 # Replicate the robust logic from the training tab to bypass the buggy runner function.
                 # 1. Prepare features (OHE on X) and split X/y.
-                X_enc, y_raw = runner.prepare_features(df_used, target_col)
+                X_enc, y_raw = prepare_features(df_used, target_col)
 
                 # 2. Encode the target variable if the task is classification.
                 y_enc = y_raw
                 if effective_task == "classification":
-                    y_enc, _ = runner.encode_classification_target(y_raw)
+                    y_enc, _ = encode_classification_target(y_raw)
 
                 # 3. Select candidate models based on the correct task.
                 candidate_models = get_available_models(

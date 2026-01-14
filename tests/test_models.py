@@ -1,4 +1,4 @@
-from automl import models
+from AIE import models
 
 
 def test_classification_registry_contains_core_models():

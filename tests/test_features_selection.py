@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 
-from automl import features as f
-from automl import selection as s
+from AIE import features as f
+from AIE import selection as s
 
 
 def test_date_part_extractor_adds_parts():

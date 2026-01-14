@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from automl import diagnostics as d
+from AIE import diagnostics as d
 
 
 def test_missing_report_counts():

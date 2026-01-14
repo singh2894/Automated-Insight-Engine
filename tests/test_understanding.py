@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from automl import understanding as u
+from AIE import understanding as u
 
 
 def test_infer_schema_and_convertible_text():

@@ -71,7 +71,6 @@ def infer_effective_task(task: str, y) -> Tuple[str, str]:
             is_float = pd.api.types.is_float_dtype(y_series)
             if is_float or unique_vals > max(20, 0.1 * len(y_series)):
                 task = "regression"
-                note = "Target appears continuous; using regression CV/metrics."
     return task, note
 
 

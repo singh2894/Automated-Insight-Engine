@@ -185,15 +185,6 @@ def render_diagnosis_tab(df: pd.DataFrame):
         else:
             low_cardinality_cats.append(col)
 
-    if high_cardinality_cats:
-        st.info(
-            f"**Heads-up:** The following columns have a very high number of unique values (>{CARDINALITY_LIMIT}):\n\n"
-            f"`{', '.join(high_cardinality_cats)}`\n\n"
-            "To prevent memory errors, they have been excluded from the *Categorical Association* chart below. "
-            "Your data itself has not been changed. These columns are often identifiers and can be dropped or "
-            "ignored in later steps."
-        )
-
     diag = diagnostics.diagnose(
         df,
         numeric_cols=summary.schema.numeric,
